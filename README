@@ -1,0 +1,27 @@
+Pixivloader
+===========
+A simple tool for downloading tags/search results from Pixiv. 
+Filtering results based on user favorites is possible.
+
+1. Dependencies
+===============
+Pixivloader requires Python (>=2.6) to operate.
+
+The following additional Python modules are required:
+* mechanize
+* lxml
+
+2. Installation
+===============
+No installation is required. pixivloader.py is the main executable.
+
+3. Usage
+========
+pixivloader.py --help for a list of possible options.
+One of -t, -s or -g is required to specify either:
+
+-t	Image tag
+-s	Search string
+-g	Member ID
+
+
