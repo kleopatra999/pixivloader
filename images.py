@@ -34,7 +34,7 @@ class Image(object):
 	def _getPageLink(self, liTag):
 		""" Extracts the page linked to by the image. """
 
-		return mechanize.urljoin("http://www.pixiv.net",
+		return urlparse.urljoin("http://www.pixiv.net",
 			liTag[0].get("href"))
 
 	def _getUrl(self, liTag):
@@ -56,7 +56,7 @@ class Image(object):
 	def _cleanUrl(self, url):
 		""" Removes query strings from an URL """
 		_, host, path, _, _ = urlparse.urlsplit(url)
-		return mechanize.urljoin("http://" + host, path)
+		return urlparse.urljoin("http://" + host, path)
 
 	def __repr__(self):
 		return "<Image {0} by {1}>".format(self.imageId, self.artistId())
