@@ -63,17 +63,17 @@ class Image(object):
 
 class MangaImage(Image):
 
-	def __init__(self, imgTag, referringUrl):
+	def __init__(self, imgSrc, referringUrl):
 		""" Construct an image from a manga page. """
 
-		super(MangaImage, self).__init__(imgTag)
+		super(MangaImage, self).__init__(imgSrc)
 		self.referringUrl = referringUrl
 
 	def _getFavoriteCount(self, imgTag):
 		return 0
 
-	def _getUrl(self, imgTag):
-		return self._cleanUrl(imgTag.get("src"))
+	def _getUrl(self, imgSrc):
+		return self._cleanUrl(imgSrc)
 
 	def _getPageLink(self, imgTag):
 		return ""

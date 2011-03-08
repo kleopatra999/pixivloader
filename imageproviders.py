@@ -2,6 +2,7 @@
 
 import lxml.html
 import urllib
+import re
 
 import images
 import browser
@@ -129,8 +130,11 @@ class MangaPageProvider(ImageProvider):
 			return False
 
 	def listImages(self):
-		imgTags = self.pageHtml.cssselect("td > a img")
-		return [images.MangaImage(imgTag, self._buildMangaUrl()) for imgTag in imgTags]
+		""" Requires some more work, as images are loaded dynamically using JavaScript. """
+		imageScripts = self.pageHtml.cssselect("section#image div.image-container > script")
+		imgUrls = [ re.search(r"unshift\('([^']+)'\)", script.text).group(1)
+			for script in imageScripts ]
+		return [images.MangaImage(imgUrl, self._buildMangaUrl()) for imgUrl in imgUrls]
 
 	def _buildMangaUrl(self):
 		return "http://www.pixiv.net/member_illust.php" +\
