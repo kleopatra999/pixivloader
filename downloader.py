@@ -12,7 +12,7 @@ class ImageDownloader(threading.Thread):
 	""" A thread that downloads images from a central image queue. """
 
 	_downloaded = 0
-	_lock = threading.Lock()
+	lock = threading.Lock()
 
 	def __init__(self, imgQueue, imgNaming):
 		threading.Thread.__init__(self)
@@ -38,11 +38,12 @@ class ImageDownloader(threading.Thread):
 			fullpath = os.path.join(directory, filename)
 
 			if not os.path.exists(fullpath):
-				print img.imageUrl
+				with ImageDownloader.lock:
+					print img.imageUrl
 				temppath, headers = browser.retrieve(img.imageUrl, img.referringUrl)
 				shutil.move(temppath, fullpath)
 
-				with self._lock:
+				with ImageDownloader.lock:
 					self._downloaded += 1
 		except mechanize.HTTPError as error:
 			if error.getcode() == 404 and self.downloadManga:
@@ -60,7 +61,7 @@ class ImageDownloader(threading.Thread):
 		""" Creates the directory the image should be saved to, if necessary """
 		directory = self.imgNaming.directory(img).decode('utf-8')
 
-		with self._lock:
+		with ImageDownloader.lock:
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 
