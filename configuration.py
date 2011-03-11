@@ -62,9 +62,9 @@ def _saveConfigFile():
 	if not os.path.exists(directory):
 		os.makedirs(directory, 0700)
 	fp = open(os.path.join(directory, filename), "w")
-	os.fchmod(fp.fileno(), 0600)
 	cfg.write(fp)
 	fp.close()
+	os.chmod(os.path.join(directory, filename), 0600)
 
 def initConfiguration():
 	""" Initializes the module. """
