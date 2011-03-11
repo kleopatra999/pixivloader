@@ -89,7 +89,7 @@ def parseArguments():
 
 def setupConfiguration(options):
 	""" Change configuration based on command line arguments. """
-	configuration._initConfiguration()
+	configuration.initConfiguration()
 	configuration.Imagelimit = options.imglimit
 	configuration.Pagelimit = options.pagelimit
 	configuration.Threads = options.threads
