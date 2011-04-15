@@ -46,7 +46,7 @@ class PagedProvider(ImageProvider):
 		""" If the pager doesn't contain the current page,
 			it is considered an invalid page. """
 
-		return bool(self.pageHtml.cssselect("div.pager_ul li > span"))
+		return bool(self.pageHtml.cssselect("div.pages > ol > li.pages-current"))
 
 	def _acceptImage(self, image):
 		""" Determines if an image is included in listImages. """
