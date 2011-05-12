@@ -46,7 +46,7 @@ class PagedProvider(ImageProvider):
 		""" If the pager doesn't contain the current page,
 			it is considered an invalid page. """
 
-		return bool(self.pageHtml.cssselect("div.pages > ol > li.pages-current"))
+		return bool(self.pageHtml.cssselect("nav.pager > ul > li.current"))
 
 	def _acceptImage(self, image):
 		""" Determines if an image is included in listImages. """
@@ -79,6 +79,12 @@ class MemberGalleryProvider(PagedProvider):
 		return "http://www.pixiv.net/member_illust.php" + \
 			"?id={0}&p={1}".format(self.artistId, "{0}")
 
+	def _isValidPage(self):
+		""" If the pager doesn't contain the current page,
+			it is considered an invalid page. """
+
+		return bool(self.pageHtml.cssselect("div.pages > ol > li.pages-current"))
+
 class SearchProvider(PagedProvider):
 	""" Gets images from a search. """
 
@@ -88,7 +94,7 @@ class SearchProvider(PagedProvider):
 		self.minFavorites = minFavorites
 
 	def cssForImages(self):
-		return "div.search_a2_result li"
+		return "section#search-result li.image"
 
 	def _acceptImage(self, image):
 		return image.favoriteCount >= self.minFavorites

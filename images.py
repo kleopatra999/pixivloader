@@ -40,16 +40,15 @@ class Image(object):
 	def _getUrl(self, liTag):
 		""" Extracts the URL from the image tag. """
 
-		thumbnail = self._cleanUrl(liTag[0][0].get("src"))
+		thumbnail = self._cleanUrl(liTag[0][0][0].get("src"))
 		return thumbnail.replace("_s.", ".")
 
 	def _getFavoriteCount(self, liTag):
 		""" Extracts the number of times an image has been favorited. """
 
 		if len(liTag) > 2:
-			spanFavorites = liTag[2][0]
-			return int(re.search(r"\d+",
-				spanFavorites.text).group(0))
+			bookmarkcount = liTag[2][0][0]
+			return int(bookmarkcount.text)
 		else:
 			return 0
 
