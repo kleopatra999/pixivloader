@@ -5,31 +5,31 @@ import threading
 
 import configuration
 
-# Store list of browser objects for each thread.
-_browsers = dict()
-_lock = threading.Lock()
+# Shared cookie jar
+_cookies = mechanize.CookieJar()
 
 def _initialize(browser):
 	""" Log in into Pixiv. """
+	browser.set_cookiejar(_cookies)
 	browser.addheaders = [('User-Agent', configuration.Useragent)]
-	browser.open("http://www.pixiv.net/login.php")
-	browser.select_form(name="loginForm")
-	browser["pixiv_id"] = configuration.Username
-	browser["pass"] = configuration.Password
-	browser.submit()
+
+	if not len(_cookies):
+		print 'Using login name: {0}'.format(configuration.Username)
+		browser.open("http://www.pixiv.net/login.php")
+		browser.select_form(name="loginForm")
+		browser["pixiv_id"] = configuration.Username
+		browser["pass"] = configuration.Password
+		browser.submit()
 
 def _browser():
 	""" Returns a thread-bound Browser object. The browser is initialized when created. """
-	threadid = threading.current_thread().ident
 
-	global _browsers
-	if threadid in _browsers:
-		return _browsers[threadid]
+	if hasattr(threading.local(), "browser"):
+		return threading.local().browser
 	else:
 		browser = mechanize.Browser()
 		_initialize(browser)
-		with _lock:
-			_browsers[threadid] = browser
+		threading.local().browser = browser
 
 		return browser
 
@@ -41,5 +41,6 @@ def retrieve(url, referer=None):
 	browser = _browser()
 
 	if referer:
-		browser.addheaders = [('User-Agent', configuration.Useragent), ('Referer', referer)]
+		browser.addheaders = [('User-Agent', configuration.Useragent),
+			('Referer', referer)]
 	return browser.retrieve(url)
