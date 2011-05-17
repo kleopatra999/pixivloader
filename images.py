@@ -1,19 +1,14 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-import re
-import mechanize
 import urlparse
 
 class Image(object):
 
-	def __init__(self, tag):
-		""" Creates an Image instance from a HTML LI element as
-		    commonly encountered on Pixiv. """
-
-		self.imageId = self._getId(tag)
-		self.imageUrl = self._getUrl(tag)
-		self.favoriteCount = self._getFavoriteCount(tag)
-		self.referringUrl = self._getPageLink(tag)
+	def __init__(self, image_id, image_url, favorite_count=0, referring_url=""):
+		self.imageId = image_id
+		self.imageUrl = image_url
+		self.favoriteCount = favorite_count
+		self.referringUrl = referring_url
 
 	def artistId(self):
 		""" Gets the Pixiv id of the image's artist. """
@@ -25,55 +20,62 @@ class Image(object):
 
 		return self.imageUrl.split("/")[-1]
 
-	def _getId(self, liTag):
-		""" Extracts the ID from the image tag. """
-
-		filename = self._getUrl(liTag).split("/")[-1]
-		return filename.split(".")[0]
-
-	def _getPageLink(self, liTag):
-		""" Extracts the page linked to by the image. """
-
-		return urlparse.urljoin("http://www.pixiv.net",
-			liTag[0].get("href"))
-
-	def _getUrl(self, liTag):
-		""" Extracts the URL from the image tag. """
-
-		thumbnail = self._cleanUrl(liTag[0][0][0].get("src"))
-		return thumbnail.replace("_s.", ".")
-
-	def _getFavoriteCount(self, liTag):
-		""" Extracts the number of times an image has been favorited. """
-
-		if len(liTag) > 2:
-			bookmarkcount = liTag[2][0][0]
-			return int(bookmarkcount.text)
-		else:
-			return 0
-
-	def _cleanUrl(self, url):
-		""" Removes query strings from an URL """
-		_, host, path, _, _ = urlparse.urlsplit(url)
-		return urlparse.urljoin("http://" + host, path)
-
 	def __repr__(self):
 		return "<Image {0} by {1}>".format(self.imageId, self.artistId())
 
-class MangaImage(Image):
 
-	def __init__(self, imgSrc, referringUrl):
-		""" Construct an image from a manga page. """
+def image_from_search(tag):
+	""" Creates an Image object from a <li> tag as encountered on a search
+	result page. """
 
-		super(MangaImage, self).__init__(imgSrc)
-		self.referringUrl = referringUrl
+	# Get the actual image URL from the thumbnail URL
+	url = tag[0][0][0].get("src")
+	thumbnail = __clean_url(url)
+	image_url = thumbnail.replace("_s.", ".")
 
-	def _getFavoriteCount(self, imgTag):
-		return 0
+	# Get the image ID
+	filename = image_url.split("/")[-1]
+	image_id = filename.split(".")[0]
 
-	def _getUrl(self, imgSrc):
-		return self._cleanUrl(imgSrc)
+	# Get the favorite count
+	bookmarkcount = int(tag[2][0][0].text) if len(tag) > 2 else 0
 
-	def _getPageLink(self, imgTag):
-		return ""
+	# Get the link to the medium-size page from the image link
+	referring_url = urlparse.urljoin("http://www.pixiv.net",
+		tag[0].get("href"))
 
+	return Image(image_id, image_url, bookmarkcount, referring_url)
+
+def image_from_membergallery(tag):
+	""" Creates an Image object from a <li> tag as encountered on a member
+	gallery. """
+
+	# Get the actual image URL from the thumbnail URL
+	url = tag[0][0].get("src")
+	thumbnail = __clean_url(url)
+	image_url = thumbnail.replace("_s.", ".")
+
+	# Get the image ID
+	filename = image_url.split("/")[-1]
+	image_id = filename.split(".")[0]
+
+	# Get the link to the medium-size page from the image link
+	referring_url = urlparse.urljoin("http://www.pixiv.net",
+		tag[0].get("href"))
+
+	return Image(image_id, image_url, 0, referring_url)
+
+def image_from_mangapage(url, referring_url):
+	""" Creates an Image object from a source URL and a referrer URL. """
+
+	image_url = __clean_url(url)
+
+	filename = image_url.split("/")[-1]
+	image_id = filename.split(".")[0]
+
+	return Image(image_id, image_url, 0, referring_url)
+
+def __clean_url(url):
+	""" Strips query string from an URL. """
+	_, host, path, _, _ = urlparse.urlsplit(url)
+	return urlparse.urljoin("http://" + host, path)

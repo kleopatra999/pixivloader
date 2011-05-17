@@ -39,7 +39,7 @@ class PagedProvider(ImageProvider):
 		""" Returns a list of Image objects for the current page. """
 
 		liTags = self.pageHtml.cssselect(self.cssForImages())
-		allImages = [images.Image(liTag) for liTag in liTags]
+		allImages = [images.image_from_search(liTag) for liTag in liTags]
 		return filter(self._acceptImage, allImages)
 
 	def _isValidPage(self):
@@ -71,6 +71,12 @@ class MemberGalleryProvider(PagedProvider):
 	def __init__(self, artistId):
 		super(MemberGalleryProvider, self).__init__()
 		self.artistId = artistId
+
+	def listImages(self):
+		""" Returns a list of Image objects for the current page. """
+
+		liTags = self.pageHtml.cssselect(self.cssForImages())
+		return [images.image_from_membergallery(liTag) for liTag in liTags]
 
 	def cssForImages(self):
 		return "div.display_works li"
@@ -140,7 +146,7 @@ class MangaPageProvider(ImageProvider):
 		imageScripts = self.pageHtml.cssselect("section#image div.image-container > script")
 		imgUrls = [ re.search(r"unshift\('([^']+)'\)", script.text).group(1)
 			for script in imageScripts ]
-		return [images.MangaImage(imgUrl, self._buildMangaUrl()) for imgUrl in imgUrls]
+		return [images.image_from_mangapage(imgUrl, self._buildMangaUrl()) for imgUrl in imgUrls]
 
 	def _buildMangaUrl(self):
 		return "http://www.pixiv.net/member_illust.php" +\
