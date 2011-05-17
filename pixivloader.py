@@ -78,6 +78,8 @@ def parseArguments():
 		help="Maximum number of searched pages. Default is 25.")
 	parser.add_option("--threads", dest="threads", type="int", default=4,
 		help="Maximum number of download threads. Default is 4.")
+	parser.add_option("--nomanga", dest="manga", action="store_false", default=True,
+		help="Do not download manga pages.")
 
 	options, args = parser.parse_args(argv[1:])
 
@@ -128,6 +130,7 @@ def main():
 
 	# Start all threads
 	for thread in threads:
+		thread.downloadManga = options.manga
 		thread.daemon = True
 		thread.start()
 
