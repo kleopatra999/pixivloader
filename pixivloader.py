@@ -123,17 +123,21 @@ def main():
 	condition = threading.Condition()
 	imgQueue = imagequeue.ImageQueue()
 
-	collector = threading.Thread(target=collectImages, args=(provider, imgQueue))
-	collector.start()
-
-	threads = [ downloader.ImageDownloader(imgQueue, naming) for _ in range(configuration.Threads) ]
+	threads = [ downloader.ImageDownloader(imgQueue, naming)
+			for _ in range(configuration.Threads) ]
 
 	# Start all threads
 	for thread in threads:
+		thread.daemon = True
 		thread.start()
 
+	# Start collecting images
+	try:
+		collectImages(provider, imgQueue)
+	except KeyboardInterrupt:
+		pass
+
 	# Notify all threads that collection has finished
-	collector.join()
 	imgQueue.waitNoLonger()
 
 	# Wait for download threads to shut down
