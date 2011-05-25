@@ -21,7 +21,8 @@ def collectImages(provider, imgQueue):
 			imgQueue.queue(imgs)
 
 			with downloader.ImageDownloader.lock:
-				print "Added {0} new images from page {1}".format(len(imgs), provider.currentPage)
+				print "Added {0} new images from page {1}. {2} image(s) left to download.".format(
+						len(imgs), provider.currentPage, len(imgQueue))
 		else:
 			with downloader.ImageDownloader.lock:
 				print "No images on page {0}".format(provider.currentPage)
