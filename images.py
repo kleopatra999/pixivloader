@@ -38,7 +38,7 @@ def image_from_search(tag):
 	image_id = filename.split(".")[0]
 
 	# Get the favorite count
-	bookmarkcount = int(tag[2][0][0].text) if len(tag) > 2 else 0
+	bookmarkcount = int(tag[2][0][0][0].tail.strip()) if len(tag) > 2 else 0
 
 	# Get the link to the medium-size page from the image link
 	referring_url = urlparse.urljoin("http://www.pixiv.net",
