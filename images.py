@@ -51,7 +51,7 @@ def image_from_membergallery(tag):
 	gallery. """
 
 	# Get the actual image URL from the thumbnail URL
-	url = tag[0][0].get("src")
+	url = tag[0][0].get("data-src")
 	thumbnail = __clean_url(url)
 	image_url = thumbnail.replace("_s.", ".")
 
