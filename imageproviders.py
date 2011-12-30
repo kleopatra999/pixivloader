@@ -3,6 +3,7 @@
 import lxml.html
 import urllib
 import re
+import operator
 
 import images
 import browser
@@ -40,7 +41,7 @@ class PagedProvider(ImageProvider):
 
 		liTags = self.pageHtml.cssselect(self.cssForImages())
 		allImages = [images.image_from_search(liTag) for liTag in liTags]
-		return filter(self._acceptImage, allImages)
+		return self._filterImages(allImages)
 
 	def _isValidPage(self):
 		""" If the pager doesn't contain the current page,
@@ -48,10 +49,10 @@ class PagedProvider(ImageProvider):
 
 		return bool(self.pageHtml.cssselect("nav.pager > ul > li.current"))
 
-	def _acceptImage(self, image):
+	def _filterImages(self, images):
 		""" Determines if an image is included in listImages. """
 
-		return True
+		return images
 
 	def searchUrl(self):
 		""" Returns the search URL, expecting a format entry
@@ -98,12 +99,20 @@ class SearchProvider(PagedProvider):
 		super(SearchProvider, self).__init__()
 		self.searchString = searchString
 		self.minFavorites = minFavorites
+		self._filterImages = self._filterImagesPercent
 
 	def cssForImages(self):
 		return "section#search-result li.image"
 
-	def _acceptImage(self, image):
-		return image.favoriteCount >= self.minFavorites
+	def _filterImagesPercent(self, images):
+		images.sort(key=operator.attrgetter('favoriteCount'), reverse=True)
+		keepPercent = self.minFavorites / 100.0
+		keepCount = int(len(images) * keepPercent)
+		keepCount = min(keepCount, len(images))
+		return images[:keepCount]
+
+	def _filterImagesAbsolute(self, images):
+		return filter(lambda i: i.favoriteCount >= self.minFavorites, images)
 
 	def searchUrl(self):
 		return "http://www.pixiv.net/search.php" + \
