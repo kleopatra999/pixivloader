@@ -99,12 +99,13 @@ class SearchProvider(PagedProvider):
 		super(SearchProvider, self).__init__()
 		self.searchString = searchString
 		self.minFavorites = minFavorites
-		self._filterImages = self._filterImagesPercent
+		self._filterImages = self._filterImagesAbsolute
 
 	def cssForImages(self):
 		return "section#search-result li.image"
 
 	def _filterImagesPercent(self, images):
+		""" Gets the top <minFavorites> percent on any page. """
 		images.sort(key=operator.attrgetter('favoriteCount'), reverse=True)
 		keepPercent = self.minFavorites / 100.0
 		keepCount = int(len(images) * keepPercent)
@@ -112,7 +113,27 @@ class SearchProvider(PagedProvider):
 		return images[:keepCount]
 
 	def _filterImagesAbsolute(self, images):
+		""" Gets all images with user favorites > <minFavorites>. """
 		return filter(lambda i: i.favoriteCount >= self.minFavorites, images)
+
+	def _filterImagesMean(self, images):
+		""" Filters all images with more user favorites than the page's average. """
+
+		# Cut 10% of all favorite counts from both sides of the list to smooth
+		# the average.
+		favorites = sorted([img.favoriteCount for img in images])
+		cutoff = int(len(favorites) * 0.1)
+		cut_favorites = favorites[cutoff:-cutoff]
+		mean = sum(favorites) / float(len(favorites))
+		cut_mean = sum(cut_favorites) / float(len(cut_favorites))
+
+		before_cut = filter(lambda i: i.favoriteCount > mean + self.minFavorites, images)
+		after_cut = filter(lambda i: i.favoriteCount > cut_mean + self.minFavorites, images)
+		print ("Average favorites on page: {0}. After cut: {1}. "
+				"Selected before cut: {2}. Afterwards: {3}").format(mean, cut_mean,
+				len(before_cut), len(after_cut))
+
+		return after_cut
 
 	def searchUrl(self):
 		return "http://www.pixiv.net/search.php" + \
