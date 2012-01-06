@@ -81,6 +81,8 @@ def parseArguments():
 		help="Maximum number of download threads. Default is 4.")
 	parser.add_option("--nomanga", dest="manga", action="store_false", default=True,
 		help="Do not download manga pages.")
+	parser.add_option("--r18", dest="r18", action="store_true", default=False,
+		help="Use R-18 mode for tag search.")
 
 	options, args = parser.parse_args(argv[1:])
 
@@ -105,7 +107,9 @@ def getProvider(options):
 
 	if options.gallery:
 		return imageproviders.MemberGalleryProvider(options.gallery)
-	elif options.tag:
+	elif options.tag and options.r18:
+		return imageproviders.TagR18Provider(options.tag, options.minfavs)
+	elif options.tag and not options.r18:
 		return imageproviders.TagProvider(options.tag, options.minfavs)
 	elif options.search:
 		return imageproviders.SearchProvider(options.search, options.minfavs)
