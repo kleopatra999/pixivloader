@@ -16,22 +16,25 @@ def collectImages(provider, imgQueue):
 	""" Collects all images from a specified provider and adds them to the image queue. """
 
 	all_images = []
-	while provider.nextPage():
-		imgs = provider.listImages()
+	try:
+		while provider.nextPage():
+			imgs = provider.listImages()
 
-		if len(imgs) > 0:
-			all_images.extend(imgs)
+			if len(imgs) > 0:
+				all_images.extend(imgs)
 
-			with downloader.ImageDownloader.lock:
-				print "Added {0} new images from page {1}. {2} image(s) left to download.".format(
-						len(imgs), provider.currentPage, len(imgQueue))
-		else:
-			with downloader.ImageDownloader.lock:
-				print "No images on page {0}".format(provider.currentPage)
+				with downloader.ImageDownloader.lock:
+					print "Added {0} new images from page {1}. {2} image(s) left to download.".format(
+							len(imgs), provider.currentPage, len(imgQueue))
+			else:
+				with downloader.ImageDownloader.lock:
+					print "No images on page {0}".format(provider.currentPage)
 
-		if configuration.Pagelimit > 0 and \
-			provider.currentPage >= configuration.Pagelimit:
-			break
+			if configuration.Pagelimit > 0 and \
+				provider.currentPage >= configuration.Pagelimit:
+				break
+	except KeyboardInterrupt:
+		pass
 
 	all_images.sort(key=operator.attrgetter("favoriteCount"), reverse=True)
 	imgQueue.queue(all_images)
@@ -145,10 +148,7 @@ def main():
 		thread.start()
 
 	# Start collecting images
-	try:
-		collectImages(provider, imgQueue)
-	except KeyboardInterrupt:
-		pass
+	collectImages(provider, imgQueue)
 
 	# Notify all threads that collection has finished
 	imgQueue.waitNoLonger()
