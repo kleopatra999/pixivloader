@@ -44,7 +44,7 @@ class ImageDownloader(threading.Thread):
 				shutil.move(temppath, fullpath)
 
 				with ImageDownloader.lock:
-					self._downloaded += 1
+					ImageDownloader._downloaded += 1
 		except mechanize.HTTPError as error:
 			if error.getcode() == 404 and self.downloadManga:
 				self._loadImagesFromMangaPage(img.imageId, img.favoriteCount)
@@ -74,8 +74,9 @@ class ImageDownloader(threading.Thread):
 
 	def _shouldStop(self):
 		""" Checks various stop conditions for this thread. """
-
-		if configuration.Imagelimit > 0 and \
-			self._downloaded >= configuration.Imagelimit: return True
+		with ImageDownloader.lock:
+			if configuration.Imagelimit > 0 and \
+				ImageDownloader._downloaded >= configuration.Imagelimit:
+				return True
 
 		return False
