@@ -47,15 +47,19 @@ class ImageDownloader(threading.Thread):
 					self._downloaded += 1
 		except mechanize.HTTPError as error:
 			if error.getcode() == 404 and self.downloadManga:
-				self._loadImagesFromMangaPage(img.imageId)
+				self._loadImagesFromMangaPage(img.imageId, img.favoriteCount)
 
 
-	def _loadImagesFromMangaPage(self, imageId):
+	def _loadImagesFromMangaPage(self, imageId, favoriteCount):
 		""" Try to get images from a manga page """
 
 		mangaProvider = imageproviders.MangaPageProvider(imageId)
 		mangaProvider.nextPage()
-		self.imgQueue.queueFirst(mangaProvider.listImages())
+		images = mangaProvider.listImages()
+		for img in images:
+			img.favoriteCount = favoriteCount
+
+		self.imgQueue.queueFirst(images)
 
 	def _createDirectory(self, img):
 		""" Creates the directory the image should be saved to, if necessary """
