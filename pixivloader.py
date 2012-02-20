@@ -3,6 +3,7 @@
 
 import sys, os.path, shutil, optparse
 import threading, collections, mechanize
+import operator
 
 import browser
 import imageproviders
@@ -14,11 +15,12 @@ import imagequeue
 def collectImages(provider, imgQueue):
 	""" Collects all images from a specified provider and adds them to the image queue. """
 
+	all_images = []
 	while provider.nextPage():
 		imgs = provider.listImages()
 
 		if len(imgs) > 0:
-			imgQueue.queue(imgs)
+			all_images.extend(imgs)
 
 			with downloader.ImageDownloader.lock:
 				print "Added {0} new images from page {1}. {2} image(s) left to download.".format(
@@ -30,6 +32,9 @@ def collectImages(provider, imgQueue):
 		if configuration.Pagelimit > 0 and \
 			provider.currentPage >= configuration.Pagelimit:
 			break
+
+	all_images.sort(key=operator.attrgetter("favoriteCount"), reverse=True)
+	imgQueue.queue(all_images)
 
 def win32_unicode_argv():
     """Uses shell32.GetCommandLineArgvW to get sys.argv as a list of Unicode
