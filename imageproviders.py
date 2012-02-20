@@ -124,11 +124,13 @@ class SearchProvider(PagedProvider):
 		favorites = sorted([img.favoriteCount for img in images])
 		cutoff = int(len(favorites) * 0.1)
 		cut_favorites = favorites[cutoff:-cutoff]
+		if not cut_favorites:
+			cut_favorites = favorites
 		mean = sum(favorites) / float(len(favorites))
 		cut_mean = sum(cut_favorites) / float(len(cut_favorites))
 
-		before_cut = filter(lambda i: i.favoriteCount > mean + self.minFavorites, images)
-		after_cut = filter(lambda i: i.favoriteCount > cut_mean + self.minFavorites, images)
+		before_cut = filter(lambda i: i.favoriteCount >= mean + self.minFavorites, images)
+		after_cut = filter(lambda i: i.favoriteCount >= cut_mean + self.minFavorites, images)
 		print ("Average favorites on page: {0}. After cut: {1}. "
 				"Selected before cut: {2}. Afterwards: {3}").format(mean, cut_mean,
 				len(before_cut), len(after_cut))
