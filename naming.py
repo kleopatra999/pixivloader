@@ -31,6 +31,12 @@ class SearchTagNaming(ImageNaming):
 			super(SearchTagNaming, self).directory(img),
 			self.searchTerm)
 
+class RatingNaming(SearchTagNaming):
+	""" Prepend image favorite count to name """
+
+	def filename(self, img):
+		return "%04d-%s" % (img.favoriteCount, img.filename())
+
 class MemberNaming(ImageNaming):
 	""" Directory is based on Pixiv ID """
 	def __init__(self, memberId, baseNaming=None):

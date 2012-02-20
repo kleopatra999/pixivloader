@@ -118,7 +118,7 @@ def getNaming(options):
 	""" Get naming scheme from command line arguments """
 	if options.search or options.tag:
 		searchValue = options.search if options.search else options.tag
-		return naming.SearchTagNaming(searchValue)
+		return naming.RatingNaming(searchValue)
 	elif options.gallery:
 		return naming.MemberNaming(options.gallery)
 
