@@ -60,6 +60,7 @@ class ImageDownloader(threading.Thread):
 	def _createDirectory(self, img):
 		""" Creates the directory the image should be saved to, if necessary """
 		directory = self.imgNaming.directory(img).decode('utf-8')
+		directory = directory.replace('?', '')
 
 		with ImageDownloader.lock:
 			if not os.path.exists(directory):
