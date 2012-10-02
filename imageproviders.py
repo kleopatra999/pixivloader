@@ -99,7 +99,7 @@ class SearchProvider(PagedProvider):
 		super(SearchProvider, self).__init__()
 		self.searchString = searchString
 		self.minFavorites = minFavorites
-		self._filterImages = self._filterImagesAbsolute
+		self._filterImages = self._filterImagesMean
 
 	def cssForImages(self):
 		return "section#search-result li.image"
