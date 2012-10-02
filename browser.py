@@ -16,7 +16,7 @@ def _initialize(browser):
 	if not len(_cookies):
 		print 'Using login name: {0}'.format(configuration.Username)
 		browser.open("https://ssl.pixiv.net/login.php")
-		browser.select_form(nr=0)
+		browser.select_form(nr=1)
 		browser["pixiv_id"] = configuration.Username
 		browser["pass"] = configuration.Password
 		browser.submit()
