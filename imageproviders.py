@@ -47,7 +47,7 @@ class PagedProvider(ImageProvider):
 		""" If the pager doesn't contain the current page,
 			it is considered an invalid page. """
 
-		return bool(self.pageHtml.cssselect("nav.pager > ul > li.current"))
+		return bool(self.pageHtml.cssselect("nav.column-order-menu ul.page-list > li.current"))
 
 	def _filterImages(self, images):
 		""" Determines if an image is included in listImages. """
@@ -99,10 +99,10 @@ class SearchProvider(PagedProvider):
 		super(SearchProvider, self).__init__()
 		self.searchString = searchString
 		self.minFavorites = minFavorites
-		self._filterImages = self._filterImagesAbsolute
+		self._filterImages = self._filterImagesMean
 
 	def cssForImages(self):
-		return "section#search-result li.image"
+		return "section.column-search-result li.image-item"
 
 	def _filterImagesPercent(self, images):
 		""" Gets the top <minFavorites> percent on any page. """
@@ -145,15 +145,15 @@ class TagProvider(SearchProvider):
 	""" Gets images by tags. """
 
 	def searchUrl(self):
-		return "http://www.pixiv.net/tags.php" + \
-			"?tag={0}&p={1}".format(urllib.quote(self.searchString), "{0}")
+		return "http://www.pixiv.net/search.php" + \
+			"?word={0}&s_mode=s_tag_full&p={1}".format(urllib.quote(self.searchString), "{0}")
 
 class TagR18Provider(SearchProvider):
 	""" Gets images by tags. (only R-18) """
 
 	def searchUrl(self):
-		return "http://www.pixiv.net/tags_r18.php" + \
-			"?tag={0}&p={1}".format(urllib.quote(self.searchString), "{0}")
+		return "http://www.pixiv.net/search.php" + \
+			"?word={0}&r18=1&s_mode=s_tag_full&p={1}".format(urllib.quote(self.searchString), "{0}")
 
 class MangaPageProvider(ImageProvider):
 	""" Get all pages on manga listing pages. """
