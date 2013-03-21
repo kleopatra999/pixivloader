@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import urlparse
+import lxml.html
+import inspect
+
+import browser
 
 class Image(object):
 
 	def __init__(self, image_id, image_url, favorite_count=0, referring_url=""):
 		self.imageId = image_id
-		self.imageUrl = image_url
+		self._imageUrl = image_url
 		self.favoriteCount = favorite_count
 		self.referringUrl = referring_url
+
+	@property
+	def imageUrl(self):
+		if inspect.isfunction(self._imageUrl):
+			self._imageUrl = self._imageUrl()
+			return self._imageUrl
+		else:
+			return self._imageUrl
 
 	def artistId(self):
 		""" Gets the Pixiv id of the image's artist. """
@@ -28,13 +40,21 @@ def image_from_search(tag):
 	""" Creates an Image object from a <li> tag as encountered on a search
 	result page. """
 
-	# Get the actual image URL from the thumbnail URL
-	url = tag[0][0].get("src")
-	thumbnail = __clean_url(url)
-	image_url = thumbnail.replace("_s.", ".")
+	# Get the medium image URL from the thumbnail URL. This has to be done separately
+	# later when the program has decided to actually download the image.
+	def get_image_url():
+		url = tag[0].get("href")
+		response = browser.open(urlparse.urljoin('http://www.pixiv.net', url))
+		html = lxml.html.fromstring(response)
+		imgtag = html.cssselect('div.works_display > a > img')[0]
+		url = imgtag.get("src")
+
+		thumbnail = __clean_url(url)
+		image_url = thumbnail.replace("_m.", ".")
+		return image_url
 
 	# Get the image ID
-	filename = image_url.split("/")[-1]
+	filename = tag[0][0].get("src").split("/")[-1]
 	image_id = filename.split(".")[0]
 
 	# Get the favorite count
@@ -44,7 +64,7 @@ def image_from_search(tag):
 	referring_url = urlparse.urljoin("http://www.pixiv.net",
 		tag[0].get("href"))
 
-	return Image(image_id, image_url, bookmarkcount, referring_url)
+	return Image(image_id, get_image_url, bookmarkcount, referring_url)
 
 def image_from_membergallery(tag):
 	""" Creates an Image object from a <li> tag as encountered on a member
