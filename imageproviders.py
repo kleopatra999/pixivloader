@@ -47,7 +47,7 @@ class PagedProvider(ImageProvider):
 		""" If the pager doesn't contain the current page,
 			it is considered an invalid page. """
 
-		return bool(self.pageHtml.cssselect("nav.column-order-menu > ul.pager-items > li.current"))
+		return bool(self.pageHtml.cssselect("nav.column-order-menu ul.page-list > li.current"))
 
 	def _filterImages(self, images):
 		""" Determines if an image is included in listImages. """
