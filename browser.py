@@ -33,8 +33,13 @@ def _browser():
 
 		return browser
 
-def open(url):
-	response = _browser().open(url)
+def open(url, referer=None):
+	browser = _browser()
+	if referer:
+		browser.addheaders = [('User-Agent', configuration.Useragent),
+			('Referer', referer)]
+
+	response = browser.open(url)
 	return response.get_data()
 
 def retrieve(url, referer=None):

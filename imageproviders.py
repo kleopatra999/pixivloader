@@ -80,7 +80,7 @@ class MemberGalleryProvider(PagedProvider):
 		return [images.image_from_membergallery(liTag) for liTag in liTags]
 
 	def cssForImages(self):
-		return "div.display_works li"
+		return "div.display_works li.image-item"
 
 	def searchUrl(self):
 		return "http://www.pixiv.net/member_illust.php" + \
@@ -90,7 +90,7 @@ class MemberGalleryProvider(PagedProvider):
 		""" If the pager doesn't contain the current page,
 			it is considered an invalid page. """
 
-		return bool(self.pageHtml.cssselect("div.pages > ol > li.pages-current"))
+		return bool(self.pageHtml.cssselect("ul.column-order-menu ul.page-list > li.current"))
 
 class SearchProvider(PagedProvider):
 	""" Gets images from a search. """
