@@ -54,7 +54,7 @@ def image_from_search(tag):
 		return image_url
 
 	# Get the image ID
-	filename = tag[0][0].get("src").split("/")[-1]
+	filename = tag[0][0].get("src").split("/")[-1].replace("_s.", ".")
 	image_id = filename.split(".")[0]
 
 	# Get the favorite count
