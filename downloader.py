@@ -43,8 +43,10 @@ class ImageDownloader(threading.Thread):
 				temppath, headers = browser.retrieve(img.imageUrl, img.referringUrl)
 				shutil.move(temppath, fullpath)
 
+				# Count manga as only one image
 				with ImageDownloader.lock:
-					ImageDownloader._downloaded += 1
+					if not ("_p" in filename and "_p0." not in filename):
+						ImageDownloader._downloaded += 1
 		except mechanize.HTTPError as error:
 			if error.getcode() == 404 and self.downloadManga:
 				self._loadImagesFromMangaPage(img.imageId, img.favoriteCount)
