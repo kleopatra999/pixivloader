@@ -17,7 +17,7 @@ Useragent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en; rv:1.9.1.5) Gecko/2009
 # Limits for downloading and crawling (0 to disable limits)
 Imagelimit = 0
 Pagelimit = 0
-Threads = 4
+Threads = 8
 
 def _configDir():
 	""" Returns a suitable directory for storing the configuration
